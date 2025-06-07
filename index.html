@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Robot Face Talking Simulation</title>
+  <style>
+    body {
+      background-color: black;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .face {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .eye {
+      width: 500px;
+      height: 500px;
+      background: #00cfff;
+      border-radius: 50% / 50%;
+      box-shadow: 0 0 40px #00cfff, inset 0 0 10px #99efff;
+      position: absolute;
+      animation: blink 5s infinite;
+    }
+
+    .left-eye {
+      top: 5%;
+      left: 20%;
+    }
+
+    .right-eye {
+      top: 5%;
+      right: 20%;
+    }
+
+    .pupil {
+      width: 480px;
+      height: 480px;
+      background: #030000;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes blink {
+      0%, 97%, 100% { transform: scaleY(1); opacity: 1; }
+      98%, 99%     { transform: scaleY(0.1); opacity: 0.3; }
+    }
+
+    .mouth {
+      width: 600px;
+      height: 100px;
+      border-bottom: 4px solid #00cfff;
+      border-radius: 0 0 90px 90px;
+      box-shadow: 0 0 15px #00cfff;
+      position: absolute;
+      bottom: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: height 0.1s ease, border-bottom-width 0.1s ease, box-shadow 0.1s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="face">
+    <div class="eye left-eye"><div class="pupil"></div></div>
+    <div class="eye right-eye"><div class="pupil"></div></div>
+    <div class="mouth"></div>
+  </div>
+
+  <script>
+    const mouth = document.querySelector('.mouth');
+    let talkingInterval;
+
+    function simulateTalking() {
+      const height = 60 + Math.random() * 80;
+      const border = 4 + Math.random() * 6;
+      const glow = 15 + (height / 140) * 30;
+
+      mouth.style.height = `${height}px`;
+      mouth.style.borderBottomWidth = `${border}px`;
+      mouth.style.boxShadow = `0 0 ${glow}px #00cfff`;
+    }
+
+    function startTalking() {
+      talkingInterval = setInterval(simulateTalking, 100);
+    }
+
+    function stopTalking() {
+      clearInterval(talkingInterval);
+      mouth.style.height = '100px';
+      mouth.style.borderBottomWidth = '4px';
+      mouth.style.boxShadow = '0 0 15px #00cfff';
+    }
+
+    function loopTalking() {
+      startTalking();
+      setTimeout(stopTalking, 3000); // talk for 3s
+    }
+
+    // Loop forever: 3s talking, 3s break
+    loopTalking();
+    setInterval(loopTalking, 6000);
+  </script>
+</body>
+</html>
