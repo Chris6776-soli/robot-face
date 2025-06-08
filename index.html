@@ -2,13 +2,13 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Robot Face Talking Simulation</title>
+  <title>Talking Robot Face</title>
   <style>
     body {
       background-color: black;
       margin: 0;
-      height: 100vh;
       overflow: hidden;
+      font-family: Arial, sans-serif;
     }
 
     .face {
@@ -18,39 +18,56 @@
     }
 
     .eye {
-      width: 120px;
-      height: 120px;
+      width: 80px;
+      height: 80px;
       background: #00cfff;
-      border-radius: 50% / 50%;
-      box-shadow: 0 0 40px #00cfff, inset 0 0 10px #99efff;
+      border-radius: 50%;
+      box-shadow: 0 0 20px #00cfff, inset 0 0 5px #99efff;
       position: absolute;
-      animation: blink 5s infinite;
+      top: 15%;
     }
 
     .left-eye {
-      top: 35%;
-      left: 60%;
+      left: 25%;
     }
 
     .right-eye {
-      top: 35%;
-      right: 60%;
+      right: 25%;
     }
 
     .pupil {
-      width: 110px;
-      height: 110px;
-      background: #030000;
+      width: 40px;
+      height: 40px;
+      background: #000;
       border-radius: 50%;
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: 20px;
+      left: 20px;
     }
 
-    @keyframes blink {
-      0%, 97%, 100% { transform: scaleY(1); opacity: 1; }
-      98%, 99%     { transform: scaleY(0.1); opacity: 0.3; }
+    .mouth {
+      width: 150px;
+      height: 30px;
+      border-bottom: 4px solid #00cfff;
+      border-radius: 0 0 40px 40px;
+      box-shadow: 0 0 8px #00cfff;
+      position: absolute;
+      bottom: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: height 0.1s ease;
+    }
+
+    #inputBox {
+      position: absolute;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      font-size: 18px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
     }
   </style>
 </head>
@@ -58,7 +75,46 @@
   <div class="face">
     <div class="eye left-eye"><div class="pupil"></div></div>
     <div class="eye right-eye"><div class="pupil"></div></div>
-    <div class="mouth"></div>
+    <div class="mouth" id="mouth"></div>
   </div>
+
+  <input type="text" id="inputBox" placeholder="Say something..." />
+
+  <script>
+    const mouth = document.getElementById('mouth');
+    const inputBox = document.getElementById('inputBox');
+
+    function speak(text) {
+      // Animate mouth
+      let count = 0;
+      const interval = setInterval(() => {
+        mouth.style.height = 30 + Math.random() * 20 + 'px';
+        count++;
+        if (count > 15) {
+          clearInterval(interval);
+          mouth.style.height = '30px';
+        }
+      }, 100);
+
+      // Speak text
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    inputBox.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const text = inputBox.value.toLowerCase().trim();
+        inputBox.value = '';
+        if (text === 'hi') {
+          speak('Hello there!');
+        } else if (text === 'who are you') {
+          speak('I am your robot friend.');
+        } else {
+          speak("Sorry, I don't understand.");
+        }
+      }
+    });
+  </script>
 </body>
 </html>
