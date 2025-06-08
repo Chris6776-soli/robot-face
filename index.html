@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Talking Robot Face</title>
+  <meta charset="UTF-8">
+  <title>Robot Face</title>
   <style>
     body {
       background-color: black;
       margin: 0;
       overflow: hidden;
-      font-family: Arial, sans-serif;
     }
 
     .face {
@@ -18,56 +17,53 @@
     }
 
     .eye {
-      width: 80px;
-      height: 80px;
+      width: 30vw;
+      height: 30vw;
+      max-width: 200px;
+      max-height: 200px;
       background: #00cfff;
       border-radius: 50%;
-      box-shadow: 0 0 20px #00cfff, inset 0 0 5px #99efff;
+      box-shadow: 0 0 40px #00cfff, inset 0 0 10px #99efff;
       position: absolute;
-      top: 15%;
+      animation: blink 5s infinite;
     }
 
     .left-eye {
-      left: 25%;
+      top: 15%;
+      left: 20%;
     }
 
     .right-eye {
-      right: 25%;
+      top: 15%;
+      right: 20%;
     }
 
     .pupil {
-      width: 40px;
-      height: 40px;
-      background: #000;
+      width: 80%;
+      height: 80%;
+      background: #030000;
       border-radius: 50%;
       position: absolute;
-      top: 20px;
-      left: 20px;
+      top: 10%;
+      left: 10%;
+    }
+
+    @keyframes blink {
+      0%, 97%, 100% { transform: scaleY(1); opacity: 1; }
+      98%, 99%     { transform: scaleY(0.1); opacity: 0.3; }
     }
 
     .mouth {
-      width: 150px;
-      height: 30px;
+      width: 60vw;
+      height: 100px;
       border-bottom: 4px solid #00cfff;
-      border-radius: 0 0 40px 40px;
-      box-shadow: 0 0 8px #00cfff;
+      border-radius: 0 0 50px 50px;
+      box-shadow: 0 0 15px #00cfff;
       position: absolute;
-      bottom: 20%;
+      bottom: 15%;
       left: 50%;
       transform: translateX(-50%);
-      transition: height 0.1s ease;
-    }
-
-    #inputBox {
-      position: absolute;
-      bottom: 5%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      font-size: 18px;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
+      transition: height 0.1s ease, border-bottom-width 0.1s ease, box-shadow 0.1s ease;
     }
   </style>
 </head>
@@ -75,46 +71,54 @@
   <div class="face">
     <div class="eye left-eye"><div class="pupil"></div></div>
     <div class="eye right-eye"><div class="pupil"></div></div>
-    <div class="mouth" id="mouth"></div>
+    <div class="mouth"></div>
   </div>
 
-  <input type="text" id="inputBox" placeholder="Say something..." />
-
   <script>
-    const mouth = document.getElementById('mouth');
-    const inputBox = document.getElementById('inputBox');
+    const mouth = document.querySelector('.mouth');
 
-    function speak(text) {
-      // Animate mouth
-      let count = 0;
-      const interval = setInterval(() => {
-        mouth.style.height = 30 + Math.random() * 20 + 'px';
-        count++;
-        if (count > 15) {
-          clearInterval(interval);
-          mouth.style.height = '30px';
-        }
-      }, 100);
+    function simulateTalking() {
+      const mouthHeight = 40 + Math.random() * 80;
+      const borderWidth = 2 + Math.random() * 8;
+      const glow = 10 + (mouthHeight / 120) * 20;
 
-      // Speak text
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1;
-      window.speechSynthesis.speak(utterance);
+      mouth.style.height = mouthHeight + 'px';
+      mouth.style.borderBottomWidth = borderWidth + 'px';
+      mouth.style.boxShadow = `0 0 ${glow}px #00cfff`;
     }
 
-    inputBox.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        const text = inputBox.value.toLowerCase().trim();
-        inputBox.value = '';
-        if (text === 'hi') {
-          speak('Hello there!');
-        } else if (text === 'who are you') {
-          speak('I am your robot friend.');
-        } else {
-          speak("Sorry, I don't understand.");
-        }
+    let talking = false;
+    let interval = null;
+
+    function startTalking() {
+      if (!interval) {
+        interval = setInterval(simulateTalking, 100);
       }
-    });
+    }
+
+    function stopTalking() {
+      clearInterval(interval);
+      interval = null;
+      mouth.style.height = '100px';
+      mouth.style.borderBottomWidth = '4px';
+      mouth.style.boxShadow = '0 0 15px #00cfff';
+    }
+
+    // Every 300ms, check if Raspberry Pi is speaking
+    setInterval(() => {
+      fetch('http://YOUR_PI_IP_ADDRESS:5000/status')
+        .then(res => res.json())
+        .then(data => {
+          if (data.talking) {
+            startTalking();
+          } else {
+            stopTalking();
+          }
+        })
+        .catch(err => {
+          stopTalking();
+        });
+    }, 300);
   </script>
 </body>
 </html>
